@@ -11,22 +11,15 @@
     }
     .card {
       background: white;
-      max-width: 600px;
+      max-width: 720px;
       margin: auto;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
-    h1 {
-      text-align: center;
-    }
-    .question {
-      margin: 25px 0;
-    }
-    .choices {
-      display: flex;
-      gap: 10px;
-    }
+    h1 { text-align: center; }
+    .question { margin: 22px 0; }
+    .choices { display: flex; gap: 10px; flex-wrap: wrap; }
     .choice {
       flex: 1;
       padding: 12px;
@@ -41,21 +34,17 @@
       color: white;
       border-color: #4f46e5;
     }
+    .actions { margin-top: 20px; display: flex; gap: 10px; }
     .result {
       display: none;
       margin-top: 30px;
       text-align: center;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
     }
-    .type {
-      font-size: 14px;
-      color: #666;
-      margin-top: 5px;
-    }
-    .name {
-      font-size: 26px;
-      font-weight: bold;
-      margin: 15px 0;
-    }
+    .type { font-size: 14px; color: #666; margin-top: 5px; }
+    .name { font-size: 26px; font-weight: bold; margin: 12px 0; }
+    .subtitle { color:#555; font-size: 14px; }
   </style>
 </head>
 
@@ -63,8 +52,8 @@
 <div class="card">
   <h1>🎧 音楽MBTI診断</h1>
 
-  <!-- 質問1 -->
-  <div class="question" data-key="vocal">
+  <!-- 前半4問 -->
+  <div class="question">
     <p>① ボーカルはどちらがいい？</p>
     <div class="choices">
       <button class="choice" onclick="select(this,'vocal','M')">男性</button>
@@ -72,8 +61,7 @@
     </div>
   </div>
 
-  <!-- 質問2 -->
-  <div class="question" data-key="focus">
+  <div class="question">
     <p>② 歌詞と曲調、どちらを重視する？</p>
     <div class="choices">
       <button class="choice" onclick="select(this,'focus','L')">歌詞</button>
@@ -81,8 +69,7 @@
     </div>
   </div>
 
-  <!-- 質問3 -->
-  <div class="question" data-key="mood">
+  <div class="question">
     <p>③ 雰囲気は？</p>
     <div class="choices">
       <button class="choice" onclick="select(this,'mood','P')">前向き</button>
@@ -90,8 +77,7 @@
     </div>
   </div>
 
-  <!-- 質問4 -->
-  <div class="question" data-key="tempo">
+  <div class="question">
     <p>④ テンポは？</p>
     <div class="choices">
       <button class="choice" onclick="select(this,'tempo','F')">速い</button>
@@ -99,14 +85,49 @@
     </div>
   </div>
 
-  <button class="choice" style="width:100%;margin-top:20px" onclick="showResult()">
-    診断する
-  </button>
+  <!-- 後半4問（Yes/No → 文字付与） -->
+  <div class="question">
+    <p>⑤ うるさい系（ロック/ノイズ）は聴く？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'noise','N')">Yes</button>
+      <button class="choice" onclick="select(this,'noise','')">No</button>
+    </div>
+  </div>
+
+  <div class="question">
+    <p>⑥ インターネット発アーティストに興味ある？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'internet','I')">Yes</button>
+      <button class="choice" onclick="select(this,'internet','')">No</button>
+    </div>
+  </div>
+
+  <div class="question">
+    <p>⑦ アイドルなどに興味はある？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'idol','J')">Yes</button>
+      <button class="choice" onclick="select(this,'idol','')">No</button>
+    </div>
+  </div>
+
+  <div class="question">
+    <p>⑧ シンガーソングライターは聴く？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'ssw','S')">Yes</button>
+      <button class="choice" onclick="select(this,'ssw','')">No</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="choice" style="flex:2" onclick="showResult()">診断する</button>
+    <button class="choice" style="flex:1" onclick="resetAll()">もう一度</button>
+  </div>
 
   <!-- 結果 -->
   <div class="result" id="result">
-    <p class="type" id="typeCode"></p>
+    <div class="type" id="typeCode"></div>
     <div class="name" id="typeName"></div>
+    <div class="subtitle" id="subTitle"></div>
     <p id="description"></p>
   </div>
 </div>
@@ -122,54 +143,59 @@
   }
 
   function showResult() {
-    if (Object.keys(answers).length < 4) {
-      alert("すべての質問に答えてください！");
-      return;
+    const required = ['vocal','focus','mood','tempo','noise','internet','idol','ssw'];
+    for (const k of required) {
+      if (!(k in answers)) {
+        alert("すべての質問に答えてください！");
+        return;
+      }
     }
 
-    const code = answers.vocal + answers.focus + answers.mood + answers.tempo;
-    document.getElementById("typeCode").innerText = "タイプコード：" + code;
+    const core = answers.vocal + answers.focus + answers.mood + answers.tempo;
+    const suffix = [answers.noise, answers.internet, answers.idol, answers.ssw].filter(Boolean).join('');
+    const code = suffix ? `${core}-${suffix}` : core;
 
     const types = {
-      "MLPF": {
-        name: "言葉で走る主人公",
-        desc: "歌詞に背中を押され、前向きなテンポで感情を解放するタイプ。"
-      },
-      "MLPS": {
-        name: "希望を編む語り手",
-        desc: "前向きな言葉を、ゆっくり噛みしめながら聴くタイプ。"
-      },
-      "MLDF": {
-        name: "夜を駆ける詩人",
-        desc: "孤独や痛みを言葉にし、スピードで振り切る存在。"
-      },
-      "MLDS": {
-        name: "静かに沈む語り部",
-        desc: "内省と記憶に寄り添い、夜に溶ける主人公。"
-      },
-      "MSPF": {
-        name: "衝動の冒険者",
-        desc: "理屈より感覚。音の勢いで前に進むタイプ。"
-      },
-      "MSPS": {
-        name: "陽だまりの旅人",
-        desc: "心地よい音に身を任せ、前向きに漂う存在。"
-      },
-      "MSDF": {
-        name: "夜を壊す反逆者",
-        desc: "重たい感情も爆音で突き破るタイプ。"
-      },
-      "MSDS": {
-        name: "静寂に溶ける観測者",
-        desc: "音の奥行きに身を沈め、世界を眺める主人公。"
-      }
+      // 16タイプ
+      "MLPF": { name:"言葉で走る主人公", desc:"歌詞に背中を押され、前向きなテンポで感情を解放するタイプ。" },
+      "MLPS": { name:"希望を編む語り手", desc:"前向きな言葉を、ゆっくり噛みしめながら聴くタイプ。" },
+      "MLDF": { name:"夜を駆ける詩人", desc:"孤独や痛みを言葉にし、スピードで振り切る存在。" },
+      "MLDS": { name:"静かに沈む語り部", desc:"内省と記憶に寄り添い、夜に溶ける主人公。" },
+      "MSPF": { name:"衝動の冒険者", desc:"理屈より感覚。音の勢いで前に進むタイプ。" },
+      "MSPS": { name:"陽だまりの旅人", desc:"心地よい音に身を任せ、前向きに漂う存在。" },
+      "MSDF": { name:"夜を壊す反逆者", desc:"重たい感情も爆音で突き破るタイプ。" },
+      "MSDS": { name:"静寂に溶ける観測者", desc:"音の奥行きに身を沈め、世界を眺める主人公。" },
+      "FLPF": { name:"言葉で走る主人公", desc:"（声質違い）歌詞×前向き×高速。" },
+      "FLPS": { name:"希望を編む語り手", desc:"（声質違い）穏やかな前向き。" },
+      "FLDF": { name:"夜を駆ける詩人", desc:"（声質違い）内省×スピード。" },
+      "FLDS": { name:"静かに沈む語り部", desc:"（声質違い）夜寄り内省。" },
+      "FSPF": { name:"衝動の冒険者", desc:"（声質違い）高揚感重視。" },
+      "FSPS": { name:"陽だまりの旅人", desc:"（声質違い）チル前向き。" },
+      "FSDF": { name:"夜を壊す反逆者", desc:"（声質違い）爆音×感情。" },
+      "FSDS": { name:"静寂に溶ける観測者", desc:"（声質違い）深夜チル。" }
     };
 
-    const result = types[code];
-    document.getElementById("typeName").innerText = result.name;
-    document.getElementById("description").innerText = result.desc;
+    const base = types[core];
+    document.getElementById("typeCode").innerText = `タイプコード：${code}`;
+    document.getElementById("typeName").innerText = base.name;
+    document.getElementById("description").innerText = base.desc;
+
+    const tags = [];
+    if (answers.noise) tags.push("ノイズ/ロック");
+    if (answers.internet) tags.push("ネット/DIY");
+    if (answers.idol) tags.push("J-POP/アイドル");
+    if (answers.ssw) tags.push("SSW/弾き語り");
+    document.getElementById("subTitle").innerText = tags.length ? `サブタイプ：${tags.join("・")}` : "";
+
     document.getElementById("result").style.display = "block";
+  }
+
+  function resetAll() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    document.querySelectorAll(".choice").forEach(b => b.classList.remove("selected"));
+    document.getElementById("result").style.display = "none";
   }
 </script>
 </body>
 </html>
+
