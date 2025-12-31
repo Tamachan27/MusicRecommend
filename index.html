@@ -13,8 +13,9 @@ body {
   background: linear-gradient(135deg, #eef2ff, #fdf4ff);
 }
 
-h1, h2 {
+h1 {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .container {
@@ -32,6 +33,7 @@ h1, h2 {
 
 .question h3 {
   margin-top: 0;
+  font-size: 16px;
 }
 
 .options button {
@@ -50,40 +52,6 @@ h1, h2 {
   color: white;
 }
 
-#resultCard {
-  margin-top: 20px;
-  padding: 24px;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #eef2ff, #ffffff);
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-}
-
-.code {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.title {
-  font-size: 20px;
-  margin-bottom: 6px;
-}
-
-.hashtags {
-  font-size: 14px;
-  color: #555;
-}
-
-canvas {
-  width: 100%;
-  max-width: 360px;
-  margin: 16px auto;
-  display: block;
-  border-radius: 20px;
-  background: white;
-}
-
 button.action {
   width: 100%;
   padding: 14px;
@@ -99,74 +67,95 @@ button.action {
 button.action:hover {
   background: #4338ca;
 }
+
+#result {
+  display: none;
+  margin-top: 24px;
+}
+
+#resultCard {
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #eef2ff, #ffffff);
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.code {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.tags {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.secret {
+  margin-top: 12px;
+  font-weight: bold;
+  color: #7c3aed;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<h1>🎧 音楽MBTI診断</h1>
+  <h1>🎧 音楽MBTI診断</h1>
 
-<!-- ===== 質問 ===== -->
-<div id="questions"></div>
+  <div id="questions"></div>
 
-<button class="action" onclick="showResult()">診断する</button>
+  <button class="action" onclick="showResult()">診断する</button>
 
-<!-- ===== 結果 ===== -->
-<div id="result" style="display:none;">
-  <div id="resultCard">
-    <div id="mbti" class="code"></div>
-    <div id="mainTitle" class="title"></div>
-    <div id="hashTags" class="hashtags"></div>
+  <div id="result">
+    <div id="resultCard">
+      <div id="mbtiCode" class="code"></div>
+      <div id="tags" class="tags"></div>
+      <div id="secretTitle" class="secret"></div>
+    </div>
   </div>
-
-  <canvas id="canvas" width="360" height="420"></canvas>
-  <button class="action" onclick="saveImage()">画像として保存</button>
-</div>
 </div>
 
 <script>
-/* ===== 質問定義 ===== */
 const questions = [
   { q: "① ボーカルは？", options: [
-    { text: "男性ボーカル", value: "M" },
-    { text: "女性ボーカル", value: "F" }
+    { text: "男性", value: "M" },
+    { text: "女性", value: "F" }
   ]},
   { q: "② 重視するのは？", options: [
     { text: "歌詞", value: "L" },
-    { text: "曲調・サウンド", value: "S" }
+    { text: "曲調", value: "S" }
   ]},
   { q: "③ 雰囲気は？", options: [
     { text: "前向き", value: "P" },
-    { text: "後ろ向き・内省的", value: "N" }
+    { text: "内省的", value: "N" }
   ]},
   { q: "④ テンポは？", options: [
     { text: "速い", value: "F" },
     { text: "遅い", value: "S" }
   ]},
-
-  /* ===== 称号用 ===== */
-  { q: "⑤ うるさい系は？", options: [
-    { text: "好き", value: "#爆音歓迎" },
-    { text: "苦手", value: "#静寂主義" }
+  { q: "⑤ うるさい系好き？", options: [
+    { text: "はい", tag: "#爆音歓迎" },
+    { text: "いいえ", tag: null }
   ]},
-  { q: "⑥ ネット発アーティストは？", options: [
-    { text: "よく聴く", value: "#ネット音楽民" },
-    { text: "あまり聴かない", value: "#現場主義" }
+  { q: "⑥ ネット発アーティスト聴く？", options: [
+    { text: "はい", tag: "#ネット音楽民" },
+    { text: "いいえ", tag: null }
   ]},
-  { q: "⑦ アイドルは？", options: [
-    { text: "好き", value: "#偶像肯定派" },
-    { text: "興味ない", value: "#非アイドル派" }
+  { q: "⑦ アイドル好き？", options: [
+    { text: "はい", tag: "#偶像肯定派" },
+    { text: "いいえ", tag: null }
   ]},
-  { q: "⑧ シンガーソングライターは？", options: [
-    { text: "よく聴く", value: "#弾き語り信仰" },
-    { text: "あまり聴かない", value: "#バンド派" }
+  { q: "⑧ シンガーソングライター聴く？", options: [
+    { text: "はい", tag: "#弾き語り信仰" },
+    { text: "いいえ", tag: null }
   ]}
 ];
 
 const answers = Array(questions.length).fill(null);
-
-/* ===== 質問描画 ===== */
 const qDiv = document.getElementById("questions");
 
 questions.forEach((item, i) => {
@@ -180,7 +169,7 @@ questions.forEach((item, i) => {
     const btn = document.createElement("button");
     btn.textContent = opt.text;
     btn.onclick = () => {
-      answers[i] = opt.value;
+      answers[i] = opt;
       [...optDiv.children].forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
     };
@@ -191,53 +180,25 @@ questions.forEach((item, i) => {
   qDiv.appendChild(div);
 });
 
-/* ===== 結果表示 ===== */
 function showResult() {
   if (answers.includes(null)) {
-    alert("すべての質問に答えてください！");
+    alert("すべての質問に答えてください");
     return;
   }
 
-  const mbti = answers.slice(0,4).join("");
-  const tags = answers.slice(4).join(" ");
+  const code = answers.slice(0,4).map(a => a.value).join("");
+  const tags = answers.slice(4).filter(a => a.tag).map(a => a.tag);
 
-  document.getElementById("mbti").textContent = mbti;
-  document.getElementById("mainTitle").textContent = "音楽タイプ：" + mbti;
-  document.getElementById("hashTags").textContent = tags;
+  document.getElementById("mbtiCode").textContent = code;
+  document.getElementById("tags").textContent =
+    tags.length ? tags.join(" ") : "（称号なし）";
 
+  let secret = "";
+  if (tags.length === 3) secret = "🎖 音楽沼住人";
+  if (tags.length === 4) secret = "👑 完全音楽生命体";
+
+  document.getElementById("secretTitle").textContent = secret;
   document.getElementById("result").style.display = "block";
-  drawCanvas(mbti, tags);
-}
-
-/* ===== Canvas ===== */
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-function drawCanvas(code, tags) {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  const grad = ctx.createLinearGradient(0,0,360,420);
-  grad.addColorStop(0,"#eef2ff");
-  grad.addColorStop(1,"#ffffff");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0,0,360,420);
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#1e1b4b";
-  ctx.font = "bold 30px sans-serif";
-  ctx.fillText(code,180,180);
-
-  ctx.font = "14px sans-serif";
-  ctx.fillStyle = "#444";
-  ctx.fillText(tags,180,230);
-}
-
-/* ===== 保存 ===== */
-function saveImage() {
-  const a = document.createElement("a");
-  a.download = "music_mbti.png";
-  a.href = canvas.toDataURL();
-  a.click();
 }
 </script>
 
