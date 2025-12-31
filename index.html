@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>音楽タイプ診断</title>
+</head>
+<body>
+  <h1>音楽タイプ診断</h1>
+
+  <p>Q. 歌詞と曲調、どちらを重視する？</p>
+  <button onclick="answer('lyrics')">歌詞</button>
+  <button onclick="answer('sound')">曲調</button>
+
+  <p>Q. 雰囲気は？</p>
+  <button onclick="answer('positive')">前向き</button>
+  <button onclick="answer('introspective')">内省的</button>
+
+  <p>Q. テンポは？</p>
+  <button onclick="answer('fast')">速い</button>
+  <button onclick="answer('slow')">遅い</button>
+
+  <br><br>
+  <button onclick="showResult()">結果を見る</button>
+
+  <p id="result"></p>
+
+  <script>
+    let answers = [];
+
+    function answer(choice) {
+      answers.push(choice);
+    }
+
+    function showResult() {
+      let text = "";
+
+      if (
+        answers.includes("lyrics") &&
+        answers.includes("introspective") &&
+        answers.includes("slow")
+      ) {
+        text = "あなたは【内省リリック・スロー型】です。";
+      } else if (
+        answers.includes("sound") &&
+        answers.includes("positive") &&
+        answers.includes("fast")
+      ) {
+        text = "あなたは【高揚サウンド・アップ型】です。";
+      } else {
+        text = "あなたは【バランス型】です。";
+      }
+
+      document.getElementById("result").innerText = text;
+    }
+  </script>
+</body>
+</html>
