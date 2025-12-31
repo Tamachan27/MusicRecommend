@@ -31,11 +31,6 @@ h1 {
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-.question h3 {
-  margin-top: 0;
-  font-size: 16px;
-}
-
 .options button {
   width: 100%;
   padding: 12px;
@@ -55,17 +50,13 @@ h1 {
 button.action {
   width: 100%;
   padding: 14px;
-  margin-top: 10px;
+  margin-top: 12px;
   border-radius: 14px;
   border: none;
   font-size: 16px;
   background: #4f46e5;
   color: white;
   cursor: pointer;
-}
-
-button.action:hover {
-  background: #4338ca;
 }
 
 #result {
@@ -84,19 +75,20 @@ button.action:hover {
 .code {
   font-size: 32px;
   font-weight: bold;
-  margin-bottom: 10px;
+}
+
+.hero {
+  font-size: 18px;
+  margin-top: 6px;
 }
 
 .tags {
   margin-top: 10px;
   font-size: 14px;
-  color: #444;
 }
 
-.secret {
-  margin-top: 12px;
-  font-weight: bold;
-  color: #7c3aed;
+.share {
+  margin-top: 16px;
 }
 </style>
 </head>
@@ -104,125 +96,125 @@ button.action:hover {
 <body>
 
 <div class="container">
-  <h1>🎧 音楽MBTI診断</h1>
+<h1>🎧 音楽MBTI診断</h1>
 
-  <div id="questions"></div>
+<div id="questions"></div>
 
-  <button class="action" onclick="showResult()">診断する</button>
+<button class="action" onclick="showResult()">診断する</button>
 
-  <div id="result">
-    <div id="resultCard">
-      <div id="mbtiCode" class="code"></div>
-      <div id="tags" class="tags"></div>
-      <div id="secretTitle" class="secret"></div>
+<div id="result">
+  <div id="resultCard">
+    <div id="mbtiCode" class="code"></div>
+    <div id="heroName" class="hero"></div>
+    <div id="tags" class="tags"></div>
+
+    <div class="share">
+      <button class="action" onclick="shareX()">Xでシェア</button>
+      <button class="action" onclick="shareLine()">LINEでシェア</button>
     </div>
   </div>
 </div>
+</div>
 
 <script>
+const heroNames = {
+  MLPF:"疾走する言葉の旅人", MLPS:"夜を抱える語り部",
+  MLNF:"内省を刻むランナー", MLNS:"静寂に沈む詩人",
+  MSPF:"音で駆け抜ける冒険者", MSPS:"波に揺れるサウンド派",
+  MSNF:"感情を爆発させる観測者", MSNS:"深海のリスナー",
+  FLPF:"声に恋する疾走者", FLPS:"月夜のメロディスト",
+  FLNF:"心を追うストーリーテラー", FLNS:"部屋と歌の住人",
+  FSPF:"音圧のヒロイン", FSPS:"揺れる音のコレクター",
+  FSNF:"感覚で生きる共鳴者", FSNS:"静かな音の哲学者"
+};
+
 const questions = [
-  {
-    q: "① ボーカルで好きなのは？",
-    options: [
-      { text: "男性ボーカル", value: "M" },
-      { text: "女性ボーカル", value: "F" }
-    ]
-  },
-  {
-    q: "② より重視するのは？",
-    options: [
-      { text: "歌詞", value: "L" },
-      { text: "曲調・サウンド", value: "S" }
-    ]
-  },
-  {
-    q: "③ 曲の雰囲気はどちらが好き？",
-    options: [
-      { text: "前向き・元気", value: "P" },
-      { text: "内省的・暗い", value: "N" }
-    ]
-  },
-  {
-    q: "④ テンポの好みは？",
-    options: [
-      { text: "速い", value: "F" },
-      { text: "ゆっくり", value: "S" }
-    ]
-  },
-  {
-    q: "⑤ 大きな音・激しい曲は好き？",
-    options: [
-      { text: "はい", tag: "#爆音歓迎" },
-      { text: "いいえ", tag: null }
-    ]
-  },
-  {
-    q: "⑥ ネット発のアーティストはよく聴く？",
-    options: [
-      { text: "はい", tag: "#ネット音楽民" },
-      { text: "いいえ", tag: null }
-    ]
-  },
-  {
-    q: "⑦ アイドル音楽は好き？",
-    options: [
-      { text: "はい", tag: "#偶像肯定派" },
-      { text: "いいえ", tag: null }
-    ]
-  },
-  {
-    q: "⑧ シンガーソングライターはよく聴く？",
-    options: [
-      { text: "はい", tag: "#弾き語り信仰" },
-      { text: "いいえ", tag: null }
-    ]
-  }
+  { q:"① ボーカルで好きなのは？", options:[
+    {text:"男性ボーカル", value:"M"},
+    {text:"女性ボーカル", value:"F"}
+  ]},
+  { q:"② より重視するのは？", options:[
+    {text:"歌詞", value:"L"},
+    {text:"曲調・サウンド", value:"S"}
+  ]},
+  { q:"③ 曲の雰囲気はどちらが好き？", options:[
+    {text:"前向き・元気", value:"P"},
+    {text:"内省的・暗い", value:"N"}
+  ]},
+  { q:"④ テンポの好みは？", options:[
+    {text:"速い", value:"F"},
+    {text:"ゆっくり", value:"S"}
+  ]},
+  { q:"⑤ 大きな音・激しい曲は好き？", options:[
+    {text:"はい", tag:"#爆音歓迎"},
+    {text:"いいえ", tag:null}
+  ]},
+  { q:"⑥ ネット発のアーティストはよく聴く？", options:[
+    {text:"はい", tag:"#ネット音楽民"},
+    {text:"いいえ", tag:null}
+  ]},
+  { q:"⑦ アイドル音楽は好き？", options:[
+    {text:"はい", tag:"#偶像肯定派"},
+    {text:"いいえ", tag:null}
+  ]},
+  { q:"⑧ シンガーソングライターはよく聴く？", options:[
+    {text:"はい", tag:"#弾き語り信仰"},
+    {text:"いいえ", tag:null}
+  ]}
 ];
 
 const answers = Array(questions.length).fill(null);
 const qDiv = document.getElementById("questions");
 
-questions.forEach((item, i) => {
-  const div = document.createElement("div");
-  div.className = "question";
-  div.innerHTML = `<h3>${item.q}</h3>`;
-  const optDiv = document.createElement("div");
-  optDiv.className = "options";
+questions.forEach((item,i)=>{
+  const div=document.createElement("div");
+  div.className="question";
+  div.innerHTML=`<h3>${item.q}</h3>`;
+  const opt=document.createElement("div");
+  opt.className="options";
 
-  item.options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.textContent = opt.text;
-    btn.onclick = () => {
-      answers[i] = opt;
-      [...optDiv.children].forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
+  item.options.forEach(o=>{
+    const b=document.createElement("button");
+    b.textContent=o.text;
+    b.onclick=()=>{
+      answers[i]=o;
+      [...opt.children].forEach(x=>x.classList.remove("selected"));
+      b.classList.add("selected");
     };
-    optDiv.appendChild(btn);
+    opt.appendChild(b);
   });
 
-  div.appendChild(optDiv);
+  div.appendChild(opt);
   qDiv.appendChild(div);
 });
 
-function showResult() {
-  if (answers.includes(null)) {
-    alert("すべての質問に答えてください");
-    return;
-  }
+function showResult(){
+  if(answers.includes(null)){ alert("すべて答えてください"); return; }
 
-  const code = answers.slice(0,4).map(a => a.value).join("");
-  const tags = answers.slice(4).filter(a => a.tag).map(a => a.tag);
+  const code=answers.slice(0,4).map(a=>a.value).join("");
+  const tags=answers.slice(4).filter(a=>a.tag).map(a=>a.tag);
 
-  document.getElementById("mbtiCode").textContent = code;
-  document.getElementById("tags").textContent =
-    tags.length ? tags.join(" ") : "（称号なし）";
+  document.getElementById("mbtiCode").textContent=code;
+  document.getElementById("heroName").textContent=heroNames[code];
+  document.getElementById("tags").textContent=tags.join(" ");
 
-  let secret = "";
-  if (tags.length === 3) secret = "🎖 音楽沼住人";
-  if (tags.length === 4) secret = "👑 完全音楽生命体";
+  window.shareText=
+`🎧 音楽MBTI診断
+タイプ：${code}
+主人公：${heroNames[code]}
+${tags.join(" ")}`;
 
-  document.getElementById("secretTitle").textContent = secret;
-  document.getElementById("result").style.display = "block";
+  document.getElementById("result").style.display="block";
+}
+
+function shareX(){
+  const url=`https://twitter.com/intent/tweet?text=${encodeURIComponent(window.shareText)}`;
+  window.open(url,"_blank");
+}
+
+function shareLine(){
+  const url=`https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(window.shareText)}`;
+  window.open(url,"_blank");
 }
 </script>
 
