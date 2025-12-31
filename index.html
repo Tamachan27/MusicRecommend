@@ -121,38 +121,62 @@ button.action:hover {
 
 <script>
 const questions = [
-  { q: "① ボーカルは？", options: [
-    { text: "男性", value: "M" },
-    { text: "女性", value: "F" }
-  ]},
-  { q: "② 重視するのは？", options: [
-    { text: "歌詞", value: "L" },
-    { text: "曲調", value: "S" }
-  ]},
-  { q: "③ 雰囲気は？", options: [
-    { text: "前向き", value: "P" },
-    { text: "内省的", value: "N" }
-  ]},
-  { q: "④ テンポは？", options: [
-    { text: "速い", value: "F" },
-    { text: "遅い", value: "S" }
-  ]},
-  { q: "⑤ うるさい系好き？", options: [
-    { text: "はい", tag: "#爆音歓迎" },
-    { text: "いいえ", tag: null }
-  ]},
-  { q: "⑥ ネット発アーティスト聴く？", options: [
-    { text: "はい", tag: "#ネット音楽民" },
-    { text: "いいえ", tag: null }
-  ]},
-  { q: "⑦ アイドル好き？", options: [
-    { text: "はい", tag: "#偶像肯定派" },
-    { text: "いいえ", tag: null }
-  ]},
-  { q: "⑧ シンガーソングライター聴く？", options: [
-    { text: "はい", tag: "#弾き語り信仰" },
-    { text: "いいえ", tag: null }
-  ]}
+  {
+    q: "① ボーカルで好きなのは？",
+    options: [
+      { text: "男性ボーカル", value: "M" },
+      { text: "女性ボーカル", value: "F" }
+    ]
+  },
+  {
+    q: "② より重視するのは？",
+    options: [
+      { text: "歌詞", value: "L" },
+      { text: "曲調・サウンド", value: "S" }
+    ]
+  },
+  {
+    q: "③ 曲の雰囲気はどちらが好き？",
+    options: [
+      { text: "前向き・元気", value: "P" },
+      { text: "内省的・暗い", value: "N" }
+    ]
+  },
+  {
+    q: "④ テンポの好みは？",
+    options: [
+      { text: "速い", value: "F" },
+      { text: "ゆっくり", value: "S" }
+    ]
+  },
+  {
+    q: "⑤ 大きな音・激しい曲は好き？",
+    options: [
+      { text: "はい", tag: "#爆音歓迎" },
+      { text: "いいえ", tag: null }
+    ]
+  },
+  {
+    q: "⑥ ネット発のアーティストはよく聴く？",
+    options: [
+      { text: "はい", tag: "#ネット音楽民" },
+      { text: "いいえ", tag: null }
+    ]
+  },
+  {
+    q: "⑦ アイドル音楽は好き？",
+    options: [
+      { text: "はい", tag: "#偶像肯定派" },
+      { text: "いいえ", tag: null }
+    ]
+  },
+  {
+    q: "⑧ シンガーソングライターはよく聴く？",
+    options: [
+      { text: "はい", tag: "#弾き語り信仰" },
+      { text: "いいえ", tag: null }
+    ]
+  }
 ];
 
 const answers = Array(questions.length).fill(null);
