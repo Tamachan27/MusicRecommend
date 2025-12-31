@@ -1,183 +1,175 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>音楽タイプ診断</title>
-
+  <meta charset="UTF-8" />
+  <title>音楽MBTI診断</title>
   <style>
     body {
-      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 0;
+      font-family: "Helvetica Neue", sans-serif;
+      background: #f5f5f5;
+      padding: 30px;
     }
-
-    .container {
+    .card {
+      background: white;
       max-width: 600px;
-      margin: 40px auto;
-      background: #ffffff;
+      margin: auto;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
-
     h1 {
       text-align: center;
-      margin-bottom: 30px;
     }
-
     .question {
-      margin-bottom: 25px;
+      margin: 25px 0;
     }
-
-    .question p {
-      font-weight: bold;
-      margin-bottom: 10px;
+    .choices {
+      display: flex;
+      gap: 10px;
     }
-
-    button {
-      margin: 5px;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 20px;
-      background: #4f7df3;
-      color: #fff;
+    .choice {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      background: white;
       cursor: pointer;
       font-size: 14px;
     }
-
-    button:hover {
-      background: #345bdc;
+    .choice.selected {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
     }
-
-    .tag-btn {
-      background: #e0e0e0;
-      color: #333;
-    }
-
-    .tag-btn.active {
-      background: #4caf50;
-      color: #fff;
-    }
-
-    #result {
+    .result {
+      display: none;
       margin-top: 30px;
-      padding: 20px;
-      background: #f0f4ff;
-      border-radius: 10px;
-      white-space: pre-line;
+      text-align: center;
+    }
+    .type {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .name {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 15px 0;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>音楽タイプ診断</h1>
+<div class="card">
+  <h1>🎧 音楽MBTI診断</h1>
 
-    <!-- 核となる質問 -->
-    <div class="question">
-      <p>Q1. ボーカルはどちらが好み？</p>
-      <button onclick="setAnswer('vocal','male')">男性</button>
-      <button onclick="setAnswer('vocal','female')">女性</button>
-      <button onclick="setAnswer('vocal','either')">どちらも</button>
+  <!-- 質問1 -->
+  <div class="question" data-key="vocal">
+    <p>① ボーカルはどちらがいい？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'vocal','M')">男性</button>
+      <button class="choice" onclick="select(this,'vocal','F')">女性</button>
     </div>
-
-    <div class="question">
-      <p>Q2. より重視するのは？</p>
-      <button onclick="setAnswer('focus','lyrics')">歌詞</button>
-      <button onclick="setAnswer('focus','sound')">曲調</button>
-    </div>
-
-    <div class="question">
-      <p>Q3. 雰囲気の好みは？</p>
-      <button onclick="setAnswer('mood','positive')">前向き</button>
-      <button onclick="setAnswer('mood','introspective')">内省的</button>
-    </div>
-
-    <div class="question">
-      <p>Q4. テンポは？</p>
-      <button onclick="setAnswer('tempo','fast')">速い</button>
-      <button onclick="setAnswer('tempo','slow')">遅い</button>
-    </div>
-
-    <!-- 文化軸 -->
-    <div class="question">
-      <p>Q5. うるさい系（音圧強め）は聴く？</p>
-      <button class="tag-btn" onclick="toggleTag(this,'loud')">聴く</button>
-    </div>
-
-    <div class="question">
-      <p>Q6. インターネット発アーティストに興味ある？</p>
-      <button class="tag-btn" onclick="toggleTag(this,'internet')">ある</button>
-    </div>
-
-    <div class="question">
-      <p>Q7. アイドル音楽に興味ある？</p>
-      <button class="tag-btn" onclick="toggleTag(this,'idol')">ある</button>
-    </div>
-
-    <div class="question">
-      <p>Q8. インスト（歌なし）を聴く？</p>
-      <button class="tag-btn" onclick="toggleTag(this,'instrumental')">聴く</button>
-    </div>
-
-    <button onclick="showResult()">診断結果を見る</button>
-
-    <div id="result"></div>
   </div>
 
-  <script>
-    let answers = {};
-    let tags = [];
+  <!-- 質問2 -->
+  <div class="question" data-key="focus">
+    <p>② 歌詞と曲調、どちらを重視する？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'focus','L')">歌詞</button>
+      <button class="choice" onclick="select(this,'focus','S')">曲調</button>
+    </div>
+  </div>
 
-    function setAnswer(key, value) {
-      answers[key] = value;
+  <!-- 質問3 -->
+  <div class="question" data-key="mood">
+    <p>③ 雰囲気は？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'mood','P')">前向き</button>
+      <button class="choice" onclick="select(this,'mood','D')">後ろ向き</button>
+    </div>
+  </div>
+
+  <!-- 質問4 -->
+  <div class="question" data-key="tempo">
+    <p>④ テンポは？</p>
+    <div class="choices">
+      <button class="choice" onclick="select(this,'tempo','F')">速い</button>
+      <button class="choice" onclick="select(this,'tempo','S')">遅い</button>
+    </div>
+  </div>
+
+  <button class="choice" style="width:100%;margin-top:20px" onclick="showResult()">
+    診断する
+  </button>
+
+  <!-- 結果 -->
+  <div class="result" id="result">
+    <p class="type" id="typeCode"></p>
+    <div class="name" id="typeName"></div>
+    <p id="description"></p>
+  </div>
+</div>
+
+<script>
+  const answers = {};
+
+  function select(button, key, value) {
+    const buttons = button.parentElement.querySelectorAll(".choice");
+    buttons.forEach(b => b.classList.remove("selected"));
+    button.classList.add("selected");
+    answers[key] = value;
+  }
+
+  function showResult() {
+    if (Object.keys(answers).length < 4) {
+      alert("すべての質問に答えてください！");
+      return;
     }
 
-    function toggleTag(button, tag) {
-      if (tags.includes(tag)) {
-        tags = tags.filter(t => t !== tag);
-        button.classList.remove("active");
-      } else {
-        tags.push(tag);
-        button.classList.add("active");
+    const code = answers.vocal + answers.focus + answers.mood + answers.tempo;
+    document.getElementById("typeCode").innerText = "タイプコード：" + code;
+
+    const types = {
+      "MLPF": {
+        name: "言葉で走る主人公",
+        desc: "歌詞に背中を押され、前向きなテンポで感情を解放するタイプ。"
+      },
+      "MLPS": {
+        name: "希望を編む語り手",
+        desc: "前向きな言葉を、ゆっくり噛みしめながら聴くタイプ。"
+      },
+      "MLDF": {
+        name: "夜を駆ける詩人",
+        desc: "孤独や痛みを言葉にし、スピードで振り切る存在。"
+      },
+      "MLDS": {
+        name: "静かに沈む語り部",
+        desc: "内省と記憶に寄り添い、夜に溶ける主人公。"
+      },
+      "MSPF": {
+        name: "衝動の冒険者",
+        desc: "理屈より感覚。音の勢いで前に進むタイプ。"
+      },
+      "MSPS": {
+        name: "陽だまりの旅人",
+        desc: "心地よい音に身を任せ、前向きに漂う存在。"
+      },
+      "MSDF": {
+        name: "夜を壊す反逆者",
+        desc: "重たい感情も爆音で突き破るタイプ。"
+      },
+      "MSDS": {
+        name: "静寂に溶ける観測者",
+        desc: "音の奥行きに身を沈め、世界を眺める主人公。"
       }
-    }
+    };
 
-    function showResult() {
-      let type = "";
-
-      if (
-        answers.focus === "lyrics" &&
-        answers.mood === "introspective" &&
-        answers.tempo === "slow"
-      ) {
-        type = "内省リリック・スロー型";
-      } else if (
-        answers.focus === "sound" &&
-        answers.mood === "positive" &&
-        answers.tempo === "fast"
-      ) {
-        type = "高揚サウンド・アップ型";
-      } else {
-        type = "バランス型";
-      }
-
-      let resultText = `【診断結果】\nあなたは「${type}」です。\n\n【音楽傾向】`;
-
-      if (tags.length === 0) {
-        resultText += "\n特定の文化的傾向は強くありません。";
-      } else {
-        tags.forEach(tag => {
-          if (tag === "loud") resultText += "\n・音圧強めOK";
-          if (tag === "internet") resultText += "\n・ネット発アーティスト好き";
-          if (tag === "idol") resultText += "\n・アイドル耐性あり";
-          if (tag === "instrumental") resultText += "\n・インストも聴く";
-        });
-      }
-
-      document.getElementById("result").innerText = resultText;
-    }
-  </script>
+    const result = types[code];
+    document.getElementById("typeName").innerText = result.name;
+    document.getElementById("description").innerText = result.desc;
+    document.getElementById("result").style.display = "block";
+  }
+</script>
 </body>
 </html>
