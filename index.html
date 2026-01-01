@@ -3,167 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音楽MBTI診断 - あなたにぴったりのバンド</title>
+    <title>決定版：音楽MBTI診断</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-            --accent: #f43f5e;
+        :root { --primary: #6366f1; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+        .container { max-width: 650px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 30px; }
+        .q-box { margin-bottom: 25px; padding: 15px; border-bottom: 1px solid #eee; }
+        .q-title { font-weight: bold; margin-bottom: 12px; display: block; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input[type="radio"] { display: none; }
+        label { 
+            display: block; padding: 12px; background: #f9fafb; border: 2px solid #e5e7eb; 
+            border-radius: 10px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
         }
-        body { font-family: 'Helvetica Neue', Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; margin: 0; }
-        .container { max-width: 600px; margin: 40px auto; background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); }
-        h1 { text-align: center; color: var(--primary); font-size: 1.8rem; margin-bottom: 30px; }
-        .question { margin-bottom: 25px; display: none; text-align: center; }
-        .question.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        button { padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; cursor: pointer; font-size: 1rem; font-weight: bold; transition: all 0.2s; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-        
-        .result-title { text-align: center; color: var(--text); border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; }
-        .result-card { background: #f1f5f9; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
-        .artist-name { font-size: 1.2rem; display: block; margin-bottom: 5px; color: #1e293b; }
-        .tag { display: inline-block; background: #e2e8f0; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-right: 5px; color: #475569; font-weight: bold; }
-        .tag.noisy { background: #fee2e2; color: #b91c1c; }
-        .tag.internet { background: #e0e7ff; color: #4338ca; }
-        
-        .links { margin-top: 12px; display: flex; gap: 15px; }
-        .links a { font-size: 0.9rem; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 4px; }
-        .link-spotify { color: #1DB954; }
-        .link-youtube { color: #FF0000; }
-        .links a:hover { text-decoration: underline; }
-        
-        .hidden { display: none; }
-        .mbti-display { text-align: center; font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; letter-spacing: 2px; }
+        input[type="radio"]:checked + label { background: var(--primary); color: white; border-color: var(--primary); }
+        .submit-btn { 
+            width: 100%; padding: 15px; background: var(--primary); color: white; border: none; 
+            border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
+        #result { display: none; margin-top: 30px; }
+        .title-display { text-align: center; font-size: 1.3rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+        .mbti-display { text-align: center; font-size: 0.9rem; color: #6b7280; margin-bottom: 20px; }
+        .artist-card { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+        .tags { margin: 5px 0; }
+        .tag { font-size: 0.75rem; background: #e5e7eb; padding: 2px 8px; border-radius: 10px; margin-right: 5px; color: #4b5563; }
+        .links { margin-top: 10px; display: flex; gap: 15px; }
+        .links a { font-size: 0.85rem; text-decoration: none; font-weight: bold; }
+        .sp { color: #1DB954; } .yt { color: #FF0000; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🎧 音楽MBTI診断</h1>
-    
-    <div id="quiz">
-        <div class="question active" id="q1">
-            <p><strong>Q1. どんなサウンドが好き？</strong></p>
-            <div class="btn-group">
-                <button onclick="next(1, 'R')">楽器の熱量を感じるロック系</button>
-                <button onclick="next(1, 'P')">洗練されたポップス系</button>
+    <form id="quiz-form">
+        <div class="q-box">
+            <span class="q-title">Q1. どっちのサウンドが気分？</span>
+            <div class="options">
+                <input type="radio" name="q1" value="R" id="r1" required><label for="r1">ロック系</label>
+                <input type="radio" name="q1" value="P" id="r2"><label for="r2">ポップス系</label>
             </div>
         </div>
-        <div class="question" id="q2">
-            <p><strong>Q2. ボーカルの好みは？</strong></p>
-            <div class="btn-group">
-                <button onclick="next(2, 'M')">男性ボーカル派</button>
-                <button onclick="next(2, 'F')">女性ボーカル派</button>
+        <div class="q-box">
+            <span class="q-title">Q2. ボーカルの好みは？</span>
+            <div class="options">
+                <input type="radio" name="q2" value="M" id="r3" required><label for="r3">男性ボーカル</label>
+                <input type="radio" name="q2" value="F" id="r4"><label for="r4">女性ボーカル</label>
             </div>
         </div>
-        <div class="question" id="q3">
-            <p><strong>Q3. 今の気分はどっち？</strong></p>
-            <div class="btn-group">
-                <button onclick="next(3, 'P')">明るく前向きに駆け抜けたい</button>
-                <button onclick="next(3, 'N')">夜の静けさや内省に浸りたい</button>
+        <div class="q-box">
+            <span class="q-title">Q3. 今日の空気感は？</span>
+            <div class="options">
+                <input type="radio" name="q3" value="P" id="r5" required><label for="r5">明るく前向き</label>
+                <input type="radio" name="q3" value="N" id="r6"><label for="r6">夜・内省的</label>
             </div>
         </div>
-        <div class="question" id="q4">
-            <p><strong>Q4. 音楽に何を求める？</strong></p>
-            <div class="btn-group">
-                <button onclick="next(4, 'L')">歌詞の世界観やメッセージ</button>
-                <button onclick="next(4, 'S')">楽器のテクニックやサウンド</button>
+        <div class="q-box">
+            <span class="q-title">Q4. 何を一番大事にする？</span>
+            <div class="options">
+                <input type="radio" name="q4" value="L" id="r7" required><label for="r7">歌詞・言葉</label>
+                <input type="radio" name="q4" value="S" id="r8"><label for="r8">楽器・サウンド</label>
             </div>
         </div>
-    </div>
+        <div class="q-box">
+            <span class="q-title">Q5. 激しいうるさい音楽（爆音）は好き？</span>
+            <div class="options">
+                <input type="radio" name="q5" value="Yes" id="r9" required><label for="r9">大好き！</label>
+                <input type="radio" name="q5" value="No" id="r10"><label for="r10">そこまででもない</label>
+            </div>
+        </div>
+        <button type="submit" class="submit-btn">診断結果を見る</button>
+    </form>
 
-    <div id="result" class="hidden">
-        <div class="result-title"><h2>あなたへのレコメンド</h2></div>
-        <div id="mbti-code" class="mbti-display"></div>
-        <div id="artist-list"></div>
-        <button onclick="location.reload()" style="width: 100%; margin-top: 20px; background: #64748b;">もう一度診断する</button>
+    <div id="result">
+        <div class="title-display" id="res-title"></div>
+        <div class="mbti-display" id="res-mbti"></div>
+        <div id="res-list"></div>
+        <button onclick="location.reload()" class="submit-btn" style="background:#6b7280;">やり直す</button>
     </div>
 </div>
 
 <script>
-    const artists = {
-        // --- ロック系(R) ---
-        "RMLP": ["SUPER BEAVER", "RADWIMPS", "SAKANAMON", "Postman", "フィッシュライフ"],
-        "RMPS": ["King Gnu", "ゲスの極み乙女。", "フレデリック", "夜の本気ダンス", "ヒトリエ", "NEE", "04 Limited Sazabys", "ROTTENGRAFFTY", "Helsinki Lambda Club", "超能力戦士ドリアン", "シンガーズハイ", "Cody・Lee(李)", "サイダーガール", "クジラ夜の街"],
-        "RMNL": ["クリープハイプ", "indigo la End", "PK shampoo", "ヨイズ"],
-        "RMNS": ["サカナクション", "cinema staff", "the cabs", "秋山黄色", "ルサンチマン", "多次元制御機構よだか", "Broken my toybox", "T.o.c.a.", "トップシークレットマン"],
-        "RFPL": ["カネヨリマサル", "サバシスター", "Atmic skipper", "Pompadours", "桃色ドロシー", "ちりびーんず"],
-        "RFPS": ["ポルカドットスティングレイ", "ネクライトーキー", "Aooo", "Tricot", "COPES", "赤い公園", "嘘とカメレオン", "CLAN QUEEN", "東京事変", "Nek!"],
-        "RFNL": ["ヨルシカ", "美波", "なきごと", "みゆな", "明くる夜の羊", "ウマシカて"],
-        "RFNS": ["女王蜂", "相対性理論", "文藝天国", "宇宙コンビニ", "ブランデー戦記", "ミーマイナー", "Oddre:", "NELKE", "秘めごと"],
+const data = {
+    // 【ロック系】
+    "RMLP": { title: "疾走する言葉の旅人", artists: ["SUPER BEAVER", "RADWIMPS", "SAKANAMON", "Postman", "フィッシュライフ"], tags: [] },
+    "RMPS": { title: "音で駆け抜ける冒険者", artists: ["King Gnu", "ゲスの極み乙女。", "フレデリック", "夜の本気ダンス", "ヒトリエ", "NEE", "04 Limited Sazabys", "ROTTENGRAFFTY", "Helsinki Lambda Club", "超能力戦士ドリアン", "シンガーズハイ", "Cody・Lee(李)", "サイダーガール", "クジラ夜の街"], tags: ["#音の探究者(King Gnu)"] },
+    "RMNL": { title: "内省を刻むランナー", artists: ["クリープハイプ", "indigo la End", "PK shampoo", "ヨイズ"], tags: [] },
+    "RMNS": { title: "感情を爆発させる観測者", artists: ["サカナクション", "cinema staff", "the cabs", "秋山黄色", "ルサンチマン", "多次元制御機構よだか", "Broken my toybox", "T.o.c.a.", "トップシークレットマン"], tags: ["#音の探究者(サカナクション)"] },
+    "RFPL": { title: "声に恋する疾走者", artists: ["カネヨリマサル", "サバシスター", "Atmic skipper", "Pompadours", "桃色ドロシー", "ちりびーんず"], tags: [] },
+    "RFPS": { title: "揺れる音のコレクター", artists: ["ポルカドットスティングレイ", "ネクライトーキー", "Aooo", "Tricot", "COPES", "赤い公園", "嘘とカメレオン", "CLAN QUEEN", "東京事変", "Nek!"], tags: ["#音の探究者(Tricot)"] },
+    "RFNL": { title: "心を追うストーリーテラー", artists: ["ヨルシカ", "美波", "なきごと", "みゆな", "明くる夜の羊", "ウマシカて"], tags: ["#ネット発"] },
+    "RFNS": { title: "静かな音の哲学者", artists: ["女王蜂", "相対性理論", "文藝天国", "宇宙コンビニ", "ブランデー戦記", "ミーマイナー", "Oddre:", "NELKE", "秘めごと"], tags: ["#音の探究者(宇宙コンビニ)"] },
+    // 【ポップス系】
+    "PMLP": { title: "日常に寄り添う陽だまり", artists: ["sumika", "レトロリロン", "リュックと添い寝ご飯", "とけた電球"], tags: [] },
+    "PMPS": { title: "波に揺れるサウンド派", artists: ["Dannie May", "藤井風", "離婚伝説", "Suchmos", "Kroi", "Lucky Kilimanjaro", "LUCKY TAPES", "Bialystocks", "新東京", "BREIMEN"], tags: [] },
+    "PMNL": { title: "深海のリスナー", artists: ["ぼくのりりっくのぼうよみ", "小林私", "映秀", "生活は忘れて"], tags: ["#ネット発"] },
+    "PMNS": { title: "感覚で生きる共鳴者", artists: ["Dios", "キタニタツヤ", "PEOPLE 1", "TOOBOE", "くじら"], tags: ["#ネット発"] },
+    "PFPL": { title: "部屋と歌の住人", artists: ["SHISHAMO", "緑黄色社会", "NakamuraEmi", "ポップしなないで", "TOMOO"], tags: [] },
+    "PFPS": { title: "音圧のヒロイン", artists: ["NOMELON NOLEMON", "礼賛", "フレンズ", "カラスは真っ白", "muque", "前髪ぱっつん少年", "アザミ"], tags: ["#ネット発"] },
+    "PFNL": { title: "心静かに歌うストーリーテラー", artists: ["椎名林檎", "三月のパンタシア", "水槽", "菅原圭", "帰りの会", "空白ごっこ", "Swallow"], tags: ["#ネット発"] },
+    "PFNS": { title: "夜を抱える語り部", artists: ["ずっと真夜中でいいのに。", "Maison book girl", "DustCell", "紫今", "Empty Old City", "長瀬有花"], tags: ["#ネット発"] }
+};
+
+const noisyList = ["the cabs", "ROTTENGRAFFTY", "トップシークレットマン", "PK shampoo", "ルサンチマン"];
+const netArtists = ["ヨルシカ", "美波", "ずっと真夜中でいいのに。", "Dios", "キタニタツヤ", "三月のパンタシア", "DustCell", "水槽", "Aooo", "前髪ぱっつん少年", "紫今", "くじら", "菅原圭", "帰りの会", "空白ごっこ", "CLAN QUEEN", "ぼくのりりっくのぼうよみ", "生活は忘れて", "映秀", "小林私"];
+
+document.getElementById('quiz-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const q1 = document.querySelector('input[name="q1"]:checked').value;
+    const q2 = document.querySelector('input[name="q2"]:checked').value;
+    const q3 = document.querySelector('input[name="q3"]:checked').value;
+    const q4 = document.querySelector('input[name="q4"]:checked').value;
+    const isNoisy = document.querySelector('input[name="q5"]:checked').value === "Yes";
+    
+    const code = q1 + q2 + q3 + q4;
+    const resultData = data[code];
+    
+    document.getElementById('quiz-form').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('res-title').innerText = resultData.title;
+    document.getElementById('res-mbti').innerText = "診断タイプ: " + code;
+
+    let pool = [...resultData.artists];
+    
+    // うるさい系フィルタリング
+    if (isNoisy) {
+        // うるさい系を優先的に混ぜる（もしMBTI内にいれば先頭へ）
+        pool.sort((a, b) => noisyList.includes(b) - noisyList.includes(a));
+    } else {
+        // うるさい系を完全に除外する
+        pool = pool.filter(name => !noisyList.includes(name));
+    }
+
+    // ランダムに5件抽出
+    const selected = pool.sort(() => 0.5 - Math.random()).slice(0, 5);
+    const listDiv = document.getElementById('res-list');
+    listDiv.innerHTML = "";
+
+    selected.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'artist-card';
         
-        // --- ポップス系(P) ---
-        "PMLP": ["sumika", "レトロリロン", "リュックと添い寝ご飯", "とけた電球"],
-        "PMPS": ["Dannie May", "藤井風", "離婚伝説", "Suchmos", "Kroi", "Lucky Kilimanjaro", "LUCKY TAPES", "Bialystocks", "新東京", "BREIMEN"],
-        "PMNL": ["ぼくのりりっくのぼうよみ", "小林私", "映秀", "生活は忘れて"],
-        "PMNS": ["Dios", "キタニタツヤ", "PEOPLE 1", "TOOBOE", "くじら"],
-        "PFPL": ["SHISHAMO", "緑黄色社会", "NakamuraEmi", "ポップしなないで", "TOMOO"],
-        "PFPS": ["NOMELON NOLEMON", "礼賛", "フレンズ", "カラスは真っ白", "muque", "前髪ぱっつん少年", "アザミ"],
-        "PFNL": ["椎名林檎", "三月のパンタシア", "水槽", "菅原圭", "帰りの会", "空白ごっこ", "Swallow"],
-        "PFNS": ["ずっと真夜中でいいのに。", "Maison book girl", "DustCell", "紫今", "Empty Old City", "長瀬有花"]
-    };
+        let tagsHTML = "";
+        if (noisyList.includes(name)) tagsHTML += '<span class="tag" style="background:#fee2e2;color:#b91c1c;">#爆音耐性</span>';
+        if (netArtists.includes(name)) tagsHTML += '<span class="tag" style="background:#e0e7ff;color:#4338ca;">#ネット発</span>';
+        if (["サカナクション", "King Gnu", "cinema staff", "Tricot", "宇宙コンビニ", "東京事変"].includes(name)) tagsHTML += '<span class="tag">#音の探究者</span>';
 
-    // タグ付け用
-    const noisyArtists = ["the cabs", "ROTTENGRAFFTY", "トップシークレットマン", "PK shampoo", "ルサンチマン"];
-    const internetArtists = ["ヨルシカ", "ずっと真夜中でいいのに。", "Dios", "キタニタツヤ", "三月のパンタシア", "DustCell", "水槽", "Aooo", "前髪ぱっつん少年", "紫今", "くじら", "菅原圭", "帰りの会", "空白ごっこ", "美波", "CLAN QUEEN"];
-
-    let userAnswers = "";
-
-    function next(qNum, answer) {
-        userAnswers += answer;
-        document.getElementById(`q${qNum}`).classList.remove('active');
-        if (qNum < 4) {
-            document.getElementById(`q${qNum+1}`).classList.add('active');
-        } else {
-            showResult();
-        }
-    }
-
-    function showResult() {
-        document.getElementById('quiz').classList.add('hidden');
-        document.getElementById('result').classList.remove('hidden');
-        document.getElementById('mbti-code').innerText = `あなたの音楽タイプ：${userAnswers}`;
-
-        const pool = artists[userAnswers] || [];
-        // ランダムにシャッフルして5組抽出
-        const shuffled = pool.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 5);
-
-        const listDiv = document.getElementById('artist-list');
-        listDiv.innerHTML = "";
-
-        if (selected.length === 0) {
-            listDiv.innerHTML = "<p>ぴったりのアーティストを収集中です。他のタイプでも試してみてね！</p>";
-            return;
-        }
-
-        selected.forEach(name => {
-            const card = document.createElement('div');
-            card.className = 'result-card';
-            
-            let tagHTML = "";
-            if (noisyArtists.includes(name)) tagHTML += '<span class="tag noisy">#うるさい音楽</span>';
-            if (internetArtists.includes(name)) tagHTML += '<span class="tag internet">#インターネット音楽</span>';
-
-            const spotifySearch = `https://open.spotify.com/search/${encodeURIComponent(name)}`;
-            const youtubeSearch = `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`;
-
-            card.innerHTML = `
-                <span class="artist-name"><strong>${name}</strong></span>
-                ${tagHTML}
-                <div class="links">
-                    <a href="${spotifySearch}" target="_blank" class="link-spotify">🟢 Spotifyで聴く</a>
-                    <a href="${youtubeSearch}" target="_blank" class="link-youtube">🔴 YouTubeで探す</a>
-                </div>
-            `;
-            listDiv.appendChild(card);
-        });
-    }
+        card.innerHTML = `
+            <strong>${name}</strong>
+            <div class="tags">${tagsHTML}</div>
+            <div class="links">
+                <a href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" class="sp">Spotify</a>
+                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(name)}" target="_blank" class="yt">YouTube</a>
+            </div>
+        `;
+        listDiv.appendChild(card);
+    });
+});
 </script>
-
 </body>
 </html>
