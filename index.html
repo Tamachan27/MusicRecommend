@@ -26,15 +26,16 @@
         
         .artist-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .artist-visual { height: 80px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.2rem; }
-        .artist-info { padding: 15px; }
-        .artist-name { font-size: 1.25rem; font-weight: 800; display: block; margin-bottom: 8px; }
-        .tags { margin-bottom: 12px; }
-        .tag { font-size: 0.75rem; background: #f1f5f9; padding: 4px 10px; border-radius: 20px; margin-right: 6px; color: #475569; font-weight: 600; }
+        .artist-info { padding: 20px; } /* 余白を調整 */
+        .artist-name { font-size: 1.3rem; font-weight: 800; display: block; margin-bottom: 10px; text-align: left; }
+        .tags { margin-bottom: 15px; text-align: left; }
+        .tag { font-size: 0.75rem; background: #f1f5f9; padding: 4px 10px; border-radius: 20px; margin-right: 6px; color: #475569; font-weight: 600; display: inline-block; margin-bottom: 5px; }
         .tag.noisy { background: #fee2e2; color: #b91c1c; }
         .tag.internet { background: #e0e7ff; color: #4338ca; }
 
-        .links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .links a { text-decoration: none; text-align: center; padding: 8px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; transition: 0.2s; }
+        /* リンクボタンのレイアウト修正 */
+        .links { display: flex; gap: 10px; width: 100%; justify-content: space-between; }
+        .links a { flex: 1; text-decoration: none; text-align: center; padding: 10px 5px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; transition: 0.2s; }
         .link-sp { background: #f0fff4; color: var(--spotify-green); border: 1px solid var(--spotify-green); }
         .link-yt { background: #fff5f5; color: var(--yt-red); border: 1px solid var(--yt-red); }
         .link-sp:hover { background: var(--spotify-green); color: white; }
@@ -47,7 +48,7 @@
         .btn-dc { background: var(--dc-blue); }
         .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
 
-        .creator-playlist-btn { display: block; width: 100%; padding: 15px; background: #191414; color: white; text-decoration: none; text-align: center; border-radius: 12px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; transition: 0.2s; border: 2px solid var(--spotify-green); }
+        .creator-playlist-btn { display: block; width: 100%; padding: 15px; background: #191414; color: white; text-decoration: none; text-align: center; border-radius: 12px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; transition: 0.2s; border: 2px solid var(--spotify-green); box-sizing: border-box; }
         #q-noisy-box { display: none; }
     </style>
 </head>
@@ -104,12 +105,11 @@
             <p style="font-size:0.8rem; font-weight:bold; color:#64748b;">結果をシェアする</p>
             <div class="share-buttons">
                 <a id="share-x" href="#" target="_blank" class="share-btn btn-x">Xでシェア</a>
-                <button onclick="copyToClipboard()" class="share-btn btn-dc">Discord(URLコピー)</button>
+                <button onclick="copyToClipboard()" class="share-btn btn-dc">Discord(コピー)</button>
                 <button onclick="alert('インスタはスクショしてストーリーに載せてね！📸')" class="share-btn btn-ig">Instagram</button>
             </div>
         </div>
-
-        <a href="https://open.spotify.com/playlist/0mcq4pFXRajMz2XkbxzwNx?si=xMC5_4AyT4umtvhBqh_nmA" target="_blank" class="creator-playlist-btn">🟢 作成者のプレイリスト</a>
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX8f6LHxZ9cn8" target="_blank" class="creator-playlist-btn">🟢 おすすめのプレイリスト</a>
         <button onclick="location.reload()" class="submit-btn" style="background:#94a3b8;">もう一度診断する</button>
     </div>
 </div>
@@ -147,7 +147,7 @@ function toggleNoisyQuestion(show) {
 
 function copyToClipboard() {
     navigator.clipboard.writeText(window.location.href);
-    alert("URLをコピーしました！Discordに貼り付けてね！");
+    alert("URLをコピーしました！");
 }
 
 document.getElementById('quiz-form').addEventListener('submit', function(e) {
@@ -157,8 +157,7 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
     const q3 = document.querySelector('input[name="q3"]:checked').value;
     const q4 = document.querySelector('input[name="q4"]:checked').value;
     const netChoice = document.querySelector('input[name="q5"]:checked').value;
-    const noisyEl = document.querySelector('input[name="q6"]:checked');
-    const isNoisy = noisyEl ? noisyEl.value === "Yes" : false;
+    const isNoisy = document.querySelector('input[name="q6"]:checked')?.value === "Yes";
     
     const code = q1 + q2 + q3 + q4;
     const resultData = data[code];
@@ -169,36 +168,31 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
     document.getElementById('res-title').innerText = resultData.title;
     document.getElementById('res-mbti').innerText = "TYPE: " + code;
 
-    // --- 安全なフィルタリングロジック ---
+    // --- フィルタリング ---
     let pool = [...resultData.artists];
 
     // 1. ネット発フィルター
-    let filteredByNet;
-    if (netChoice === "Yes") {
-        filteredByNet = pool.filter(n => netArtists.includes(n));
-    } else {
-        filteredByNet = pool.filter(n => !netArtists.includes(n));
-    }
-
-    // IF: もしネット発設定のせいで0人になるなら、フィルターを解除する
-    if (filteredByNet.length > 0) {
-        pool = filteredByNet;
-    }
+    let step1 = (netChoice === "Yes") ? pool.filter(n => netArtists.includes(n)) : pool.filter(n => !netArtists.includes(n));
+    if (step1.length > 0) pool = step1;
 
     // 2. 爆音フィルター
     if (isNoisy) {
-        // 大好きなら、爆音系を優先的に上位へ
         pool.sort((a, b) => noisyList.includes(b) - noisyList.includes(a));
     } else {
-        // 苦手なら除外を試みる
-        let filteredByQuiet = pool.filter(n => !noisyList.includes(n));
-        // IF: もし爆音除外のせいで0人になるなら、除外しない
-        if (filteredByQuiet.length > 0) {
-            pool = filteredByQuiet;
-        }
+        let step2 = pool.filter(n => !noisyList.includes(n));
+        if (step2.length > 0) pool = step2;
     }
 
-    const selected = pool.sort(() => 0.5 - Math.random()).slice(0, 5);
+    // ★ 助っ人ロジック：それでも3人未満なら「似たタイプ（最初の2文字が同じ）」から補充
+    if (pool.length < 3) {
+        Object.keys(data).forEach(key => {
+            if (key.startsWith(code.substring(0, 2)) && key !== code) {
+                pool = pool.concat(data[key].artists);
+            }
+        });
+    }
+
+    const selected = Array.from(new Set(pool)).sort(() => 0.5 - Math.random()).slice(0, 5);
     const listDiv = document.getElementById('res-list');
     listDiv.innerHTML = "";
 
@@ -209,12 +203,7 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
         if (noisyList.includes(name)) tagsHTML += '<span class="tag noisy">#爆音耐性</span>';
         if (netArtists.includes(name)) tagsHTML += '<span class="tag internet">#ネット発</span>';
         if (seekers.includes(name)) tagsHTML += '<span class="tag">#音の探究者</span>';
-        
         const icon = netArtists.includes(name) ? '🎧' : '💿';
-        
-        // Spotifyリンクを公式の検索URLに修正
-        const spUrl = `https://open.spotify.com/search/${encodeURIComponent(name)}`;
-        const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}+official`;
 
         card.innerHTML = `
             <div class="artist-visual">${icon}</div>
@@ -222,14 +211,14 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
                 <span class="artist-name">${name}</span>
                 <div class="tags">${tagsHTML}</div>
                 <div class="links">
-                    <a href="${spUrl}" target="_blank" class="link-sp">Spotify</a>
-                    <a href="${ytUrl}" target="_blank" class="link-yt">YouTube動画</a>
+                    <a href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" class="link-sp">Spotify</a>
+                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(name)}+official" target="_blank" class="link-yt">YouTube</a>
                 </div>
             </div>`;
         listDiv.appendChild(card);
     });
 
-    const shareText = encodeURIComponent(`私の音楽MBTIは【${resultData.title}】でした！\nおすすめアーティスト: ${selected.join(', ')}\n#音楽MBTI診断`);
+    const shareText = encodeURIComponent(`私の音楽MBTIは【${resultData.title}】でした！\n#音楽MBTI診断`);
     document.getElementById('share-x').href = `https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(window.location.href)}`;
 });
 </script>
