@@ -7,45 +7,35 @@
 
 <style>
 body{
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
   background:#f5f5f5;
   margin:0;
-  padding:0;
 }
-
 .container{
   max-width:420px;
   margin:0 auto;
   padding:20px;
 }
-
 .card{
-  background:white;
+  background:#fff;
   border-radius:14px;
   padding:20px;
   margin-bottom:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
 }
-
-h1,h2{
-  margin-top:0;
-}
-
 button{
   width:100%;
   padding:14px;
-  margin:10px 0;
+  margin:8px 0;
   border:none;
   border-radius:12px;
   background:#222;
-  color:white;
+  color:#fff;
   font-size:16px;
 }
-
-button:active{
-  background:#555;
+button.selected{
+  background:#666;
 }
-
 .tags span{
   display:inline-block;
   background:#eee;
@@ -54,97 +44,70 @@ button:active{
   margin:4px;
   font-size:14px;
 }
-
-ul{
-  padding-left:20px;
-}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<!-- 常時表示 -->
+<!-- タイトル -->
 <div class="card">
   <h1>🎧 音楽MBTI診断</h1>
   <p>直感で選んでください</p>
 </div>
 
-<!-- Q1 -->
-<div class="card question">
+<!-- 前半4問 -->
+<div class="card">
   <h2>Q1. ボーカルで好きなのは？</h2>
-  <button onclick="answer('M')">男性ボーカル</button>
-  <button onclick="answer('F')">女性ボーカル</button>
+  <button onclick="setAnswer(0,'M',this)">男性ボーカル</button>
+  <button onclick="setAnswer(0,'F',this)">女性ボーカル</button>
 </div>
 
-<!-- Q2 -->
-<div class="card question">
+<div class="card">
   <h2>Q2. 音楽で重視するのは？</h2>
-  <button onclick="answer('L')">歌詞・物語</button>
-  <button onclick="answer('S')">曲調・サウンド</button>
+  <button onclick="setAnswer(1,'L',this)">歌詞・物語</button>
+  <button onclick="setAnswer(1,'S',this)">曲調・サウンド</button>
 </div>
 
-<!-- Q3 -->
-<div class="card question">
+<div class="card">
   <h2>Q3. 曲の雰囲気はどちらが好き？</h2>
-  <button onclick="answer('P')">前向き・元気</button>
-  <button onclick="answer('N')">内省的・暗め</button>
+  <button onclick="setAnswer(2,'P',this)">前向き・元気</button>
+  <button onclick="setAnswer(2,'N',this)">内省的・暗め</button>
 </div>
 
-<!-- Q4 -->
-<div class="card question">
+<div class="card">
   <h2>Q4. どちらをよく聴く？</h2>
-  <button onclick="answer('B')">バンド</button>
-  <button onclick="answer('N')">インターネット発音楽</button>
+  <button onclick="setAnswer(3,'B',this)">バンド</button>
+  <button onclick="setAnswer(3,'N',this)">インターネット発音楽</button>
 </div>
 
-<!-- 後半Q5 -->
-<div class="card question">
+<!-- 後半2問 -->
+<div class="card">
   <h2>Q5. うるさい系の音楽は好き？</h2>
-  <button onclick="addTag('#爆音耐性');">はい</button>
-  <button onclick="next();">いいえ</button>
+  <button onclick="addTag('#爆音耐性',this)">はい</button>
+  <button onclick="noTag(this)">いいえ</button>
 </div>
 
-<!-- Q6 -->
-<div class="card question">
+<div class="card">
   <h2>Q6. インターネット発アーティストは好き？</h2>
-  <button onclick="addTag('#ネット音楽民');">はい</button>
-  <button onclick="next();">いいえ</button>
-</div>
-
-<!-- Q7 -->
-<div class="card question">
-  <h2>Q7. アイドル音楽は聴く？</h2>
-  <button onclick="addTag('#アイドル耐性');">はい</button>
-  <button onclick="next();">いいえ</button>
-</div>
-
-<!-- Q8 -->
-<div class="card question">
-  <h2>Q8. シンガーソングライターは聴く？</h2>
-  <button onclick="addTag('#SSW好き');">はい</button>
-  <button onclick="next();">いいえ</button>
+  <button onclick="addTag('#ネット音楽民',this)">はい</button>
+  <button onclick="noTag(this)">いいえ</button>
 </div>
 
 <!-- 結果 -->
-<div class="card" id="resultCard" style="display:none;">
-  <h2 id="mbti"></h2>
+<div class="card" id="result">
+  <h2 id="mbti">結果はまだです</h2>
   <p id="title"></p>
-
   <div class="tags" id="tags"></div>
-
-  <h3>おすすめバンド（仮）</h3>
+  <h3>おすすめバンド</h3>
   <ul id="bands"></ul>
 </div>
 
 </div>
 
 <script>
-let answers = [];
+const answers = [null,null,null,null];
 let tags = [];
-let current = 0;
-
-const questions = document.querySelectorAll('.question');
 
 const titles = {
   MLPB:"疾走する言葉の旅人",
@@ -167,36 +130,43 @@ const titles = {
 
 const bandSlots = {};
 Object.keys(titles).forEach(k=>{
-  bandSlots[k] = ["（未設定）","（未設定）","（未設定）","（未設定）"];
+  bandSlots[k]=["（未設定）","（未設定）","（未設定）","（未設定）"];
 });
 
-function answer(letter){
-  answers.push(letter);
-  next();
+function setAnswer(index,letter,btn){
+  answers[index]=letter;
+  btn.parentElement.querySelectorAll('button')
+    .forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateResult();
 }
 
-function addTag(tag){
-  tags.push(tag);
-  next();
+function addTag(tag,btn){
+  if(!tags.includes(tag)) tags.push(tag);
+  btn.parentElement.querySelectorAll('button')
+    .forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateResult();
 }
 
-function next(){
-  questions[current].style.display="none";
-  current++;
-  if(current < questions.length){
-    questions[current].style.display="block";
-  }else{
-    showResult();
-  }
+function noTag(btn){
+  btn.parentElement.querySelectorAll('button')
+    .forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateResult();
 }
 
-function showResult(){
+function updateResult(){
+  if(answers.includes(null)) return;
+
   const code = answers.join('');
-  document.getElementById('resultCard').style.display="block";
-  document.getElementById('mbti').textContent = "あなたの音楽MBTI：" + code;
-  document.getElementById('title').textContent = "主人公名：「" + titles[code] + "」";
+  document.getElementById('mbti').textContent =
+    "あなたの音楽MBTI：" + code;
+  document.getElementById('title').textContent =
+    "主人公名：「" + titles[code] + "」";
 
-  const tagBox = document.getElementById('tags');
+  const tagBox=document.getElementById('tags');
+  tagBox.innerHTML="";
   tags.forEach(t=>{
     const s=document.createElement('span');
     s.textContent=t;
@@ -204,16 +174,18 @@ function showResult(){
   });
 
   const list=document.getElementById('bands');
+  list.innerHTML="";
   bandSlots[code].forEach(b=>{
     const li=document.createElement('li');
     li.textContent=b;
     list.appendChild(li);
   });
 }
-
-// 初期化
-questions.forEach((q,i)=>{ if(i!==0) q.style.display="none"; });
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
