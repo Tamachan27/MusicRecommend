@@ -12,7 +12,7 @@ body{
   margin:0;
 }
 .container{
-  max-width:420px;
+  max-width:600px; /* PCで広く表示 */
   margin:0 auto;
   padding:20px;
 }
@@ -25,13 +25,13 @@ body{
 }
 button{
   width:100%;
-  padding:14px;
+  padding:18px;
   margin:8px 0;
   border:none;
   border-radius:12px;
   background:#222;
   color:#fff;
-  font-size:16px;
+  font-size:14px;
 }
 button.selected{
   background:#666;
@@ -43,6 +43,25 @@ button.selected{
   border-radius:999px;
   margin:4px;
   font-size:14px;
+}
+
+/* スマホ用レスポンシブ */
+@media screen and (max-width:480px){
+  .container{
+    max-width:100%;
+    padding:15px;
+  }
+  button{
+    font-size:16px;
+    padding:20px;
+  }
+  .card{
+    padding:15px;
+  }
+  .tags span{
+    font-size:16px;
+    padding:8px 12px;
+  }
 }
 </style>
 </head>
@@ -81,16 +100,10 @@ button.selected{
   <button onclick="setAnswer(3,'N',this)">インターネット発音楽</button>
 </div>
 
-<!-- 後半2問 -->
+<!-- 後半1問 -->
 <div class="card">
   <h2>Q5. うるさい系の音楽は好き？</h2>
   <button onclick="addTag('#爆音耐性',this)">はい</button>
-  <button onclick="noTag(this)">いいえ</button>
-</div>
-
-<div class="card">
-  <h2>Q6. インターネット発アーティストは好き？</h2>
-  <button onclick="addTag('#ネット音楽民',this)">はい</button>
   <button onclick="noTag(this)">いいえ</button>
 </div>
 
@@ -185,8 +198,3 @@ function updateResult(){
 
 </body>
 </html>
-
-
-</body>
-</html>
-
