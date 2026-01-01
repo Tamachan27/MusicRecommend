@@ -6,209 +6,183 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
-  background:#f5f5f5;
-  margin:0;
-}
-.container{
-  max-width:600px;
-  margin:0 auto;
-  padding:20px;
-}
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
-}
-button{
-  width:100%;
-  padding:18px;
-  margin:8px 0;
-  border:none;
-  border-radius:12px;
-  background:#222;
-  color:#fff;
-  font-size:14px;
-}
-button.selected{
-  background:#666;
-}
-.tags span{
-  display:inline-block;
-  background:#eee;
-  padding:6px 10px;
-  border-radius:999px;
-  margin:4px;
-  font-size:14px;
-}
+  body{ font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif; background:#f5f5f5; margin:0; color: #333; }
+  .container{ max-width:600px; margin:0 auto; padding:20px; }
+  .card{ background:#fff; border-radius:14px; padding:20px; margin-bottom:20px; box-shadow:0 6px 20px rgba(0,0,0,.08); }
+  h1 { text-align: center; font-size: 24px; }
+  h2 { font-size: 18px; margin-top: 0; }
+  button{ width:100%; padding:16px; margin:8px 0; border:2px solid #eee; border-radius:12px; background:#fff; color:#222; font-size:14px; cursor: pointer; transition: 0.2s; }
+  button:hover { background: #f0f0f0; }
+  button.selected{ background:#222; color:#fff; border-color: #222; }
+  .tags span{ display:inline-block; background:#e0f2f1; color: #00796b; padding:6px 12px; border-radius:999px; margin:4px; font-size:14px; font-weight: bold; }
+  #result { display: none; background: #222; color: #fff; }
+  #result h2 { color: #fff; }
+  .hidden { display: none; }
 
-/* スマホ用レスポンシブ */
-@media screen and (max-width:480px){
-  .container{
-    max-width:100%;
-    padding:15px;
+  /* スマホ用レスポンシブ */
+  @media screen and (max-width:480px){
+    .container{ padding:15px; }
+    button{ font-size:16px; padding:18px; }
   }
-  button{
-    font-size:16px;
-    padding:20px;
-  }
-  .card{
-    padding:15px;
-  }
-  .tags span{
-    font-size:16px;
-    padding:8px 12px;
-  }
-}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<!-- タイトル -->
-<div class="card">
-  <h1>🎧 音楽MBTI診断</h1>
-  <p>直感で選んでください</p>
-</div>
+  <div class="card">
+    <h1>🎧 音楽MBTI診断</h1>
+    <p style="text-align:center">あなたの感性に合う音楽スタイルを判定します</p>
+  </div>
 
-<!-- 前半4問 -->
-<div class="card">
-  <h2>Q1. 音楽ジャンルは？</h2>
-  <button onclick="setAnswer(0,'R',this)">ロック</button>
-  <button onclick="setAnswer(0,'P',this)">ポップス</button>
-</div>
+  <div class="card" id="q-main-genre">
+    <h2>Q1. 好きな音楽ジャンルは？</h2>
+    <button onclick="setAnswer('genre','R',this)">ロック系</button>
+    <button onclick="setAnswer('genre','P',this)">ポップス系</button>
+  </div>
 
-<div class="card">
-  <h2>Q2. ボーカルで好きなのは？</h2>
-  <button onclick="setAnswer(1,'M',this)">男性ボーカル</button>
-  <button onclick="setAnswer(1,'F',this)">女性ボーカル</button>
-</div>
+  <div class="card hidden" id="q-sub-rock">
+    <h2>Q1'. うるさい系の音楽（ラウド・パンク等）は聴く？</h2>
+    <button onclick="setAnswer('sub','Y',this)">はい（爆音派）</button>
+    <button onclick="setAnswer('sub','N',this)">いいえ（きれいめ派）</button>
+  </div>
 
-<div class="card">
-  <h2>Q3. 曲の雰囲気はどちらが好き？</h2>
-  <button onclick="setAnswer(2,'P',this)">前向き・元気</button>
-  <button onclick="setAnswer(2,'N',this)">落ち着いた・暗め</button>
-</div>
+  <div class="card hidden" id="q-sub-pop">
+    <h2>Q1'. アイドルは好き？</h2>
+    <button onclick="setAnswer('sub','Y',this)">はい（推しがいる）</button>
+    <button onclick="setAnswer('sub','N',this)">いいえ（あまり聴かない）</button>
+  </div>
 
-<div class="card">
-  <h2>Q4. 音楽で重視するのは？</h2>
-  <button onclick="setAnswer(3,'L',this)">歌詞・物語</button>
-  <button onclick="setAnswer(3,'S',this)">曲調・サウンド</button>
-</div>
+  <div class="card">
+    <h2>Q2. ボーカルの性別、好みは？</h2>
+    <button onclick="setAnswer(1,'M',this)">男性ボーカル</button>
+    <button onclick="setAnswer(1,'F',this)">女性ボーカル</button>
+  </div>
 
-<!-- 後半補助質問 -->
-<div class="card" id="q5-card" style="display:none">
-  <h2>Q5. うるさい系の音楽は好き？</h2>
-  <button onclick="setAnswer(4,'Y',this)">はい</button>
-  <button onclick="setAnswer(4,'N',this)">いいえ</button>
-</div>
+  <div class="card">
+    <h2>Q3. 曲の雰囲気はどちらが好き？</h2>
+    <button onclick="setAnswer(2,'P',this)">フェスで盛り上がる / 前向き・元気</button>
+    <button onclick="setAnswer(2,'N',this)">落ち着いた / 暗め・内省的</button>
+  </div>
 
-<div class="card" id="q6-card" style="display:none">
-  <h2>Q6. インストバンドは好き？</h2>
-  <button onclick="setAnswer(5,'Y',this)">はい</button>
-  <button onclick="setAnswer(5,'N',this)">いいえ</button>
-</div>
+  <div class="card">
+    <h2>Q4. 音楽でより重視するのは？</h2>
+    <button onclick="setAnswer(3,'L',this)">歌詞・物語重視</button>
+    <button onclick="setAnswer(3,'S',this)">曲調・サウンド重視</button>
+  </div>
 
-<!-- 結果 -->
-<div class="card" id="result">
-  <h2 id="mbti">結果はまだです</h2>
-  <p id="title"></p>
-  <div class="tags" id="tags"></div>
-  <h3>おすすめバンド</h3>
-  <ul id="bands"></ul>
-</div>
+  <div class="card">
+    <h2>Q5. インターネット出身アーティストは好き？</h2>
+    <button onclick="setAnswer(4,'Y',this)">はい（ボカロ・歌い手等）</button>
+    <button onclick="setAnswer(4,'N',this)">いいえ / 特にこだわらない</button>
+  </div>
+
+  <div class="card">
+    <h2>Q6. インストバンド（歌なし）は好き？</h2>
+    <button onclick="setAnswer(5,'Y',this)">はい（楽器の音が好き）</button>
+    <button onclick="setAnswer(5,'N',this)">いいえ / 歌が欲しい</button>
+  </div>
+
+  <div class="card" id="result">
+    <p style="margin-bottom:8px; opacity:0.8;">診断結果</p>
+    <h2 id="mbti" style="font-size:32px; margin-bottom:10px;"></h2>
+    <p id="title" style="font-size:18px; font-weight:bold; color:#ffeb3b;"></p>
+    <div class="tags" id="tags" style="margin: 15px 0;"></div>
+    
+    <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
+      <h3 style="margin-top:0; font-size:16px;">おすすめの傾向</h3>
+      <ul id="bands" style="font-size:14px; padding-left:20px;"></ul>
+    </div>
+    <button onclick="location.reload()" style="background:#fff; color:#222; margin-top:20px;">もう一度診断する</button>
+  </div>
 
 </div>
 
 <script>
-const answers = [null,null,null,null,null,null]; // Q1～Q6
-let tags = [];
-
-const titles = {
-  RMLP:"疾走する言葉の旅人",
-  RMSP:"音で駆け抜ける冒険者",
-  RMNP:"内省を刻むランナー",
-  RMSN:"感情を爆発させる観測者",
-  RFLP:"声に恋する疾走者",
-  RFSP:"揺れる音のコレクター",
-  RFNP:"心を追うストーリーテラー",
-  RFSN:"静かな音の哲学者",
-  PMLP:"月夜のメロディスト",
-  PMSP:"波に揺れるサウンド派",
-  PMNP:"深海のリスナー",
-  PMSN:"感覚で生きる共鳴者",
-  PFLP:"部屋と歌の住人",
-  PFSP:"音圧のヒロイン",
-  PFNP:"心静かに歌うストーリーテラー",
-  PFSN:"夜を抱える語り部"
+// 回答データ保持用
+const answers = {
+  genre: null, // R or P
+  sub: null,   // Y or N (うるさい系 or アイドル)
+  1: null,     // M or F
+  2: null,     // P or N
+  3: null,     // L or S
+  4: null,     // Y or N (ネット発)
+  5: null      // Y or N (インスト)
 };
 
-const bandSlots = {};
-Object.keys(titles).forEach(k=>{
-  bandSlots[k]=["（未設定）","（未設定）","（未設定）","（未設定）"];
-});
+const titles = {
+  RMLP:"疾走する言葉の旅人", RMSP:"音で駆け抜ける冒険者", RMNP:"内省を刻むランナー", RMSN:"感情を爆発させる観測者",
+  RFLP:"声に恋する疾走者", RFSP:"揺れる音のコレクター", RFNP:"心を追うストーリーテラー", RFSN:"静かな音の哲学者",
+  PMLP:"月夜のメロディスト", PMSP:"波に揺れるサウンド派", PMNP:"深海のリスナー", PMSN:"感覚で生きる共鳴者",
+  PFLP:"部屋と歌の住人", PFSP:"音圧のヒロイン", PFNP:"心静かに歌うストーリーテラー", PFSN:"夜を抱える語り部"
+};
 
-function setAnswer(index,letter,btn){
-  answers[index]=letter;
-  btn.parentElement.querySelectorAll('button')
-    .forEach(b=>b.classList.remove('selected'));
+function setAnswer(key, value, btn) {
+  answers[key] = value;
+  
+  // ボタンの選択状態を更新
+  const buttons = btn.parentElement.querySelectorAll('button');
+  buttons.forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 
-  // 前半1問目で分岐して後半質問を表示
-  if(index===0){
-    if(letter==='R'){
-      document.getElementById('q5-card').style.display='block';
+  // Q1の分岐処理
+  if (key === 'genre') {
+    if (value === 'R') {
+      document.getElementById('q-sub-rock').classList.remove('hidden');
+      document.getElementById('q-sub-pop').classList.add('hidden');
+      answers['sub'] = null; // リセット
     } else {
-      document.getElementById('q5-card').style.display='none';
-    }
-    if(letter==='P'){
-      document.getElementById('q6-card').style.display='block';
-    } else {
-      document.getElementById('q6-card').style.display='block';
+      document.getElementById('q-sub-pop').classList.remove('hidden');
+      document.getElementById('q-sub-rock').classList.add('hidden');
+      answers['sub'] = null; // リセット
     }
   }
 
-  // すべての質問に回答してから結果表示
-  if(!answers.slice(0,4).includes(null) && !answers.slice(4).includes(null)){
-    updateResult();
+  // 全て回答されたかチェック
+  checkComplete();
+}
+
+function checkComplete() {
+  // 必須項目がすべて埋まっているか
+  const requiredKeys = ['genre', 'sub', 1, 2, 3, 4, 5];
+  const isAllAnswered = requiredKeys.every(k => answers[k] !== null);
+
+  if (isAllAnswered) {
+    showResult();
   }
 }
 
-function updateResult(){
-  const code = answers.slice(0,4).join(''); // 前半4問のMBTIコード
-  document.getElementById('mbti').textContent =
-    "あなたの音楽MBTI：" + code;
-  document.getElementById('title').textContent =
-    "主人公名：「" + titles[code] + "」";
+function showResult() {
+  const code = answers.genre + answers[1] + answers[2] + answers[3];
+  
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('mbti').textContent = code;
+  document.getElementById('title').textContent = "称号： " + (titles[code] || "未知の音楽探求者");
 
-  // タグリスト
-  const tagBox=document.getElementById('tags');
-  tagBox.innerHTML="";
-  tags = [];
-  if(answers[4]==='Y'){ // Q5が「はい」の場合のみ
-    tags.push('#爆音耐性');
-  }
-  if(answers[5]==='Y'){ // Q6が「はい」の場合のみ
-    tags.push('#音の探究者');
-  }
-  tags.forEach(t=>{
-    const s=document.createElement('span');
-    s.textContent=t;
-    tagBox.appendChild(s);
+  // ハッシュタグ生成
+  const tagBox = document.getElementById('tags');
+  tagBox.innerHTML = "";
+  
+  const activeTags = [];
+  // Q1サブの条件
+  if (answers.genre === 'R' && answers.sub === 'Y') activeTags.push('#爆音耐性');
+  if (answers.genre === 'P' && answers.sub === 'Y') activeTags.push('#アイドル推し');
+  // 後半2問
+  if (answers[4] === 'Y') activeTags.push('#ネット発アーティスト');
+  if (answers[5] === 'Y') activeTags.push('#音の探究者');
+
+  activeTags.forEach(tag => {
+    const span = document.createElement('span');
+    span.textContent = tag;
+    tagBox.appendChild(span);
   });
 
-  // おすすめバンド
-  const list=document.getElementById('bands');
-  list.innerHTML="";
-  bandSlots[code].forEach(b=>{
-    const li=document.createElement('li');
-    li.textContent=b;
-    list.appendChild(li);
-  });
+  // おすすめ（ダミー）
+  const list = document.getElementById('bands');
+  list.innerHTML = "<li>あなたの診断結果に基づいたアーティストを分析中...</li><li>GitHubのコードでここをカスタマイズしてください</li>";
+  
+  // 結果までスクロール
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 }
 </script>
 
