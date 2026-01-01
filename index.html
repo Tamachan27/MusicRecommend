@@ -77,34 +77,40 @@ button.selected{
 
 <!-- 前半4問 -->
 <div class="card">
-  <h2>Q1. ボーカルで好きなのは？</h2>
-  <button onclick="setAnswer(0,'M',this)">男性ボーカル</button>
-  <button onclick="setAnswer(0,'F',this)">女性ボーカル</button>
+  <h2>Q1. 音楽ジャンルは？</h2>
+  <button onclick="setAnswer(0,'R',this)">ロック</button>
+  <button onclick="setAnswer(0,'P',this)">ポップス</button>
 </div>
 
 <div class="card">
-  <h2>Q2. 音楽で重視するのは？</h2>
-  <button onclick="setAnswer(1,'L',this)">歌詞・物語</button>
-  <button onclick="setAnswer(1,'S',this)">曲調・サウンド</button>
+  <h2>Q2. ボーカルで好きなのは？</h2>
+  <button onclick="setAnswer(1,'M',this)">男性ボーカル</button>
+  <button onclick="setAnswer(1,'F',this)">女性ボーカル</button>
 </div>
 
 <div class="card">
   <h2>Q3. 曲の雰囲気はどちらが好き？</h2>
   <button onclick="setAnswer(2,'P',this)">前向き・元気</button>
-  <button onclick="setAnswer(2,'N',this)">内省的・暗め</button>
+  <button onclick="setAnswer(2,'N',this)">落ち着いた・暗め</button>
 </div>
 
 <div class="card">
-  <h2>Q4. どちらをよく聴く？</h2>
-  <button onclick="setAnswer(3,'B',this)">バンド</button>
-  <button onclick="setAnswer(3,'N',this)">インターネット発音楽</button>
+  <h2>Q4. 音楽で重視するのは？</h2>
+  <button onclick="setAnswer(3,'L',this)">歌詞・物語</button>
+  <button onclick="setAnswer(3,'S',this)">曲調・サウンド</button>
 </div>
 
-<!-- 後半1問 -->
-<div class="card">
+<!-- 後半補助質問 -->
+<div class="card" id="q5-card" style="display:none">
   <h2>Q5. うるさい系の音楽は好き？</h2>
   <button onclick="setAnswer(4,'Y',this)">はい</button>
   <button onclick="setAnswer(4,'N',this)">いいえ</button>
+</div>
+
+<div class="card" id="q6-card" style="display:none">
+  <h2>Q6. インストバンドは好き？</h2>
+  <button onclick="setAnswer(5,'Y',this)">はい</button>
+  <button onclick="setAnswer(5,'N',this)">いいえ</button>
 </div>
 
 <!-- 結果 -->
@@ -119,26 +125,26 @@ button.selected{
 </div>
 
 <script>
-const answers = [null,null,null,null,null]; // Q1～Q5
+const answers = [null,null,null,null,null,null]; // Q1～Q6
 let tags = [];
 
 const titles = {
-  MLPB:"疾走する言葉の旅人",
-  MLPN:"夜を抱える語り部",
-  MLNB:"内省を刻むランナー",
-  MLNN:"静寂に沈む詩人",
-  MSPB:"音で駆け抜ける冒険者",
-  MSPN:"波に揺れるサウンド派",
-  MSNB:"感情を爆発させる観測者",
-  MSNN:"深海のリスナー",
-  FLPB:"声に恋する疾走者",
-  FLPN:"月夜のメロディスト",
-  FLNB:"心を追うストーリーテラー",
-  FLNN:"部屋と歌の住人",
-  FSPB:"音圧のヒロイン",
-  FSPN:"揺れる音のコレクター",
-  FSNB:"感覚で生きる共鳴者",
-  FSNN:"静かな音の哲学者"
+  RMLP:"疾走する言葉の旅人",
+  RMSP:"音で駆け抜ける冒険者",
+  RMNP:"内省を刻むランナー",
+  RMSN:"感情を爆発させる観測者",
+  RFLP:"声に恋する疾走者",
+  RFSP:"揺れる音のコレクター",
+  RFNP:"心を追うストーリーテラー",
+  RFSN:"静かな音の哲学者",
+  PMLP:"月夜のメロディスト",
+  PMSP:"波に揺れるサウンド派",
+  PMNP:"深海のリスナー",
+  PMSN:"感覚で生きる共鳴者",
+  PFLP:"部屋と歌の住人",
+  PFSP:"音圧のヒロイン",
+  PFNP:"心静かに歌うストーリーテラー",
+  PFSN:"夜を抱える語り部"
 };
 
 const bandSlots = {};
@@ -151,8 +157,23 @@ function setAnswer(index,letter,btn){
   btn.parentElement.querySelectorAll('button')
     .forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
+
+  // 前半1問目で分岐して後半質問を表示
+  if(index===0){
+    if(letter==='R'){
+      document.getElementById('q5-card').style.display='block';
+    } else {
+      document.getElementById('q5-card').style.display='none';
+    }
+    if(letter==='P'){
+      document.getElementById('q6-card').style.display='block';
+    } else {
+      document.getElementById('q6-card').style.display='block';
+    }
+  }
+
   // すべての質問に回答してから結果表示
-  if(!answers.includes(null)){
+  if(!answers.slice(0,4).includes(null) && !answers.slice(4).includes(null)){
     updateResult();
   }
 }
@@ -170,6 +191,9 @@ function updateResult(){
   tags = [];
   if(answers[4]==='Y'){ // Q5が「はい」の場合のみ
     tags.push('#爆音耐性');
+  }
+  if(answers[5]==='Y'){ // Q6が「はい」の場合のみ
+    tags.push('#音の探究者');
   }
   tags.forEach(t=>{
     const s=document.createElement('span');
@@ -190,4 +214,3 @@ function updateResult(){
 
 </body>
 </html>
-
