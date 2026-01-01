@@ -26,16 +26,16 @@
         
         .artist-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .artist-visual { height: 80px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.2rem; }
-        .artist-info { padding: 20px; } /* 余白を調整 */
+        .artist-info { padding: 20px; box-sizing: border-box; }
         .artist-name { font-size: 1.3rem; font-weight: 800; display: block; margin-bottom: 10px; text-align: left; }
         .tags { margin-bottom: 15px; text-align: left; }
         .tag { font-size: 0.75rem; background: #f1f5f9; padding: 4px 10px; border-radius: 20px; margin-right: 6px; color: #475569; font-weight: 600; display: inline-block; margin-bottom: 5px; }
         .tag.noisy { background: #fee2e2; color: #b91c1c; }
         .tag.internet { background: #e0e7ff; color: #4338ca; }
 
-        /* リンクボタンのレイアウト修正 */
-        .links { display: flex; gap: 10px; width: 100%; justify-content: space-between; }
-        .links a { flex: 1; text-decoration: none; text-align: center; padding: 10px 5px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; transition: 0.2s; }
+        /* ボタンがズレないように修正 */
+        .links { display: flex; gap: 10px; width: 100%; margin: 0; padding: 0; }
+        .links a { flex: 1; text-decoration: none; text-align: center; padding: 12px 5px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; transition: 0.2s; box-sizing: border-box; }
         .link-sp { background: #f0fff4; color: var(--spotify-green); border: 1px solid var(--spotify-green); }
         .link-yt { background: #fff5f5; color: var(--yt-red); border: 1px solid var(--yt-red); }
         .link-sp:hover { background: var(--spotify-green); color: white; }
@@ -48,7 +48,7 @@
         .btn-dc { background: var(--dc-blue); }
         .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
 
-        .creator-playlist-btn { display: block; width: 100%; padding: 15px; background: #191414; color: white; text-decoration: none; text-align: center; border-radius: 12px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; transition: 0.2s; border: 2px solid var(--spotify-green); box-sizing: border-box; }
+        .creator-playlist-btn { display: block; width: 100%; padding: 15px; background: #1DB954; color: white; text-decoration: none; text-align: center; border-radius: 12px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; transition: 0.2s; box-sizing: border-box; }
         #q-noisy-box { display: none; }
     </style>
 </head>
@@ -105,11 +105,11 @@
             <p style="font-size:0.8rem; font-weight:bold; color:#64748b;">結果をシェアする</p>
             <div class="share-buttons">
                 <a id="share-x" href="#" target="_blank" class="share-btn btn-x">Xでシェア</a>
-                <button onclick="copyToClipboard()" class="share-btn btn-dc">Discord(コピー)</button>
+                <button onclick="copyToClipboard()" class="share-btn btn-dc">Discord(URLコピー)</button>
                 <button onclick="alert('インスタはスクショしてストーリーに載せてね！📸')" class="share-btn btn-ig">Instagram</button>
             </div>
         </div>
-        <a href="https://open.spotify.com/playlist/37i9dQZF1DX8f6LHxZ9cn8" target="_blank" class="creator-playlist-btn">🟢 おすすめのプレイリスト</a>
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX4Ym6Zp8693z" target="_blank" class="creator-playlist-btn">🟢 プレイリストを聴く</a>
         <button onclick="location.reload()" class="submit-btn" style="background:#94a3b8;">もう一度診断する</button>
     </div>
 </div>
@@ -168,31 +168,36 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
     document.getElementById('res-title').innerText = resultData.title;
     document.getElementById('res-mbti').innerText = "TYPE: " + code;
 
-    // --- フィルタリング ---
+    // --- ロジック ---
     let pool = [...resultData.artists];
 
-    // 1. ネット発フィルター
-    let step1 = (netChoice === "Yes") ? pool.filter(n => netArtists.includes(n)) : pool.filter(n => !netArtists.includes(n));
-    if (step1.length > 0) pool = step1;
+    // 1. ネット発フィルター (誰もいなくなるときは無視する)
+    let netStep = (netChoice === "Yes") ? pool.filter(n => netArtists.includes(n)) : pool.filter(n => !netArtists.includes(n));
+    if (netStep.length > 0) pool = netStep;
 
-    // 2. 爆音フィルター
-    if (isNoisy) {
-        pool.sort((a, b) => noisyList.includes(b) - noisyList.includes(a));
-    } else {
-        let step2 = pool.filter(n => !noisyList.includes(n));
-        if (step2.length > 0) pool = step2;
+    // 2. 爆音フィルター (誰もいなくなるときは無視する)
+    if (!isNoisy) {
+        let quietStep = pool.filter(n => !noisyList.includes(n));
+        if (quietStep.length > 0) pool = quietStep;
     }
 
-    // ★ 助っ人ロジック：それでも3人未満なら「似たタイプ（最初の2文字が同じ）」から補充
+    // ★ 助っ人ロジック (3人未満なら近しいタイプから補充)
     if (pool.length < 3) {
         Object.keys(data).forEach(key => {
             if (key.startsWith(code.substring(0, 2)) && key !== code) {
-                pool = pool.concat(data[key].artists);
+                pool = [...new Set([...pool, ...data[key].artists])];
             }
         });
     }
 
-    const selected = Array.from(new Set(pool)).sort(() => 0.5 - Math.random()).slice(0, 5);
+    // ★ ランダム化ロジック (フィッシャー–イェーツのシャッフル)
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // 最終的に5人選ぶ
+    const selected = pool.slice(0, 5);
     const listDiv = document.getElementById('res-list');
     listDiv.innerHTML = "";
 
@@ -203,7 +208,10 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
         if (noisyList.includes(name)) tagsHTML += '<span class="tag noisy">#爆音耐性</span>';
         if (netArtists.includes(name)) tagsHTML += '<span class="tag internet">#ネット発</span>';
         if (seekers.includes(name)) tagsHTML += '<span class="tag">#音の探究者</span>';
+        
         const icon = netArtists.includes(name) ? '🎧' : '💿';
+        const spUrl = `https://open.spotify.com/search/${encodeURIComponent(name)}`;
+        const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}+official`;
 
         card.innerHTML = `
             <div class="artist-visual">${icon}</div>
@@ -211,8 +219,8 @@ document.getElementById('quiz-form').addEventListener('submit', function(e) {
                 <span class="artist-name">${name}</span>
                 <div class="tags">${tagsHTML}</div>
                 <div class="links">
-                    <a href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" class="link-sp">Spotify</a>
-                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(name)}+official" target="_blank" class="link-yt">YouTube</a>
+                    <a href="${spUrl}" target="_blank" class="link-sp">Spotify</a>
+                    <a href="${ytUrl}" target="_blank" class="link-yt">YouTube</a>
                 </div>
             </div>`;
         listDiv.appendChild(card);
